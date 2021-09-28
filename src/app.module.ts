@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { KeycloakModule } from './keycloak/keycloak.module';
+import { TenantModule } from './tenant/tenant.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { KeycloakModule } from './keycloak/keycloak.module';
       ssl: false,
     }),
     KeycloakModule,
+    TenantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

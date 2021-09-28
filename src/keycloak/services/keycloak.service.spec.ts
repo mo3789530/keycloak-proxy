@@ -67,4 +67,91 @@ describe('KeycloakService', () => {
       fail();
     });
   });
+
+  describe('Find keycloak', () => {
+    it('should be find all', async () => {
+      const params: CreateKeycloakDto = { url: 'http://example.com' };
+      await service.createKeycloak(params);
+      const params2: CreateKeycloakDto = { url: 'http://example2.com' };
+      await service.createKeycloak(params2);
+
+      const all = await service.findAll();
+      expect(all.length).toEqual(2);
+    });
+    it('should be none array', async () => {
+      const all = await service.findAll();
+      expect(all.length).toEqual(0);
+    });
+    it('should be find by url', async () => {
+      const params: CreateKeycloakDto = { url: 'http://example.com' };
+      const save = await service.createKeycloak(params);
+
+      const keycloak = await service.findByUrl(params.url);
+      expect(params.url).toEqual(keycloak.url);
+      expect(keycloak.uuid).toBe(save.uuid);
+    });
+
+    it('should be not find by url', async () => {
+      const params: CreateKeycloakDto = { url: 'http://example.com' };
+      await service.createKeycloak(params);
+
+      const keycloak = await service.findByUrl('http://aaaa.example.com');
+      expect(keycloak).toBeUndefined();
+    });
+
+    it('should be find by uuid', async () => {
+      const params: CreateKeycloakDto = { url: 'http://example.com' };
+      const saved = await service.createKeycloak(params);
+
+      const keycloak = await service.findByUUID(saved.uuid);
+      expect(params.url).toEqual(keycloak.url);
+      expect(keycloak.uuid).toBe(saved.uuid);
+      expect(keycloak.isWriteable).toBeTruthy();
+    });
+    it('should be not find by uuid', async () => {
+      const params: CreateKeycloakDto = { url: 'http://example.com' };
+      await service.createKeycloak(params);
+
+      const keycloak = await service.findByUUID('test');
+      expect(keycloak).toBeUndefined();
+    });
+
+    it('should be find by writeable', async () => {
+      const params: CreateKeycloakDto = { url: 'http://example.com' };
+      const saved = await service.createKeycloak(params);
+
+      const keycloak = await service.findByWriteable();
+      expect(params.url).toEqual(keycloak.url);
+      expect(keycloak.uuid).toBe(saved.uuid);
+      expect(keycloak.isWriteable).toBeTruthy();
+    });
+    it('should be not find by writeable', async () => {
+      const keycloak = await service.findByWriteable();
+      expect(keycloak).toBeUndefined();
+    });
+  });
+
+  describe('update', () => {
+    it('should be readonely', async () => {
+      const params: CreateKeycloakDto = { url: 'http://example.com' };
+      const saved = await service.createKeycloak(params);
+
+      const keycloak = await service.readonly(saved.uuid);
+      expect(params.url).toEqual(keycloak.url);
+      expect(keycloak.uuid).toBe(saved.uuid);
+      expect(keycloak.isWriteable).toBeFalsy();
+    });
+
+    it('should be not  readonely', async () => {
+      const params: CreateKeycloakDto = { url: 'http://example.com' };
+      const saved = await service.createKeycloak(params);
+      try {
+        const keycloak = await service.readonly('fakeid');
+      } catch (ex) {
+        expect(ex.status).toBe(400);
+        return;
+      }
+      fail();
+    });
+  });
 });

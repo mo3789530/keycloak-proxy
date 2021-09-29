@@ -8,5 +8,6 @@ import { KeycloakService } from './services/keycloak.service';
   providers: [KeycloakService],
   controllers: [KeycloakController],
   imports: [TypeOrmModule.forFeature([KeycloakEntity])],
+  exports: [KeycloakService],
 })
 export class KeycloakModule {}

@@ -12,6 +12,9 @@ export class TenantDto {
 
   @ApiProperty()
   keycloakId?: string;
+
+  @ApiProperty()
+  keycloakUri?: string;
 }
 
 export class CreateTenantDto {

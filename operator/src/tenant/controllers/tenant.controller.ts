@@ -41,6 +41,10 @@ export class TenantController {
     const keycloak = await this.keycloakService.findByWriteable();
     if (keycloak === undefined || keycloak.uuid === undefined)
       throw new NotFoundException('Writeable keycloak is not found');
-    return await this.tenantService.create(create, keycloak.uuid);
+    return await this.tenantService.create(
+      create,
+      keycloak.id.toString(),
+      keycloak.url,
+    );
   }
 }

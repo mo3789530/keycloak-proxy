@@ -13,4 +13,7 @@ export class TenantEntity {
 
   @Column()
   keycloakId: string;
+
+  @Column()
+  keycloakUri: string;
 }

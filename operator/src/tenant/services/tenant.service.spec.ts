@@ -49,7 +49,7 @@ describe('TenantService', () => {
     it('should be create', async () => {
       const params: CreateTenantDto = { tenantName: 'test' };
       try {
-        const result = await service.create(params, 'fakeId');
+        const result = await service.create(params, 'fakeId', 'fakeUrl');
         expect(result.keycloakId).toEqual('fakeId');
         expect(result.tenantName).toEqual('test');
       } catch (e) {
@@ -60,8 +60,8 @@ describe('TenantService', () => {
     it('should be create fail', async () => {
       const params: CreateTenantDto = { tenantName: 'test' };
       try {
-        const result = await service.create(params, 'fakeId');
-        await service.create(params, 'fakeId');
+        const result = await service.create(params, 'fakeId', 'fakeUrl');
+        await service.create(params, 'fakeId', 'fakeUrl');
       } catch (e) {
         expect(e.status).toBe(400);
         return;
@@ -74,8 +74,8 @@ describe('TenantService', () => {
     it('should be find all', async () => {
       const params: CreateTenantDto = { tenantName: 'test1' };
       const params2: CreateTenantDto = { tenantName: 'test2' };
-      await service.create(params, 'aaa');
-      await service.create(params2, 'aaa');
+      await service.create(params, 'aaa', 'fake');
+      await service.create(params2, 'aaa', 'fake');
       const res = await service.findAll();
       expect(res.length).toBe(2);
     });
@@ -83,12 +83,13 @@ describe('TenantService', () => {
     it('should be find by tenant name', async () => {
       const params: CreateTenantDto = { tenantName: 'test1' };
       const params2: CreateTenantDto = { tenantName: 'test2' };
-      const inDb = await service.create(params, 'aaa');
-      await service.create(params2, 'aaa');
+      const inDb = await service.create(params, 'aaa', 'fakeurl1');
+      await service.create(params2, 'aaa', 'fakeuri2');
       const res = await service.findByName('test1');
       expect(res.keycloakId).toBe(inDb.keycloakId);
       expect(res.tenantName).toBe(inDb.tenantName);
       expect(res.uuid).toBe(inDb.uuid);
+      expect(res.keycloakUri).toBe(inDb.keycloakUri);
     });
   });
 });

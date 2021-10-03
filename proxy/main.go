@@ -47,7 +47,11 @@ func GetMasterKeycloak() (string, error) {
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 
-	log.Println(string(body))
+	// log.Println(string(body))
+
+	if response.StatusCode != 200 {
+		return "", errors.New("Active keycloak is not found error")
+	}
 
 	if err != nil {
 		return "", err

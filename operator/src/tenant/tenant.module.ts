@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { TenantService } from './services/tenant.service';
 import { TenantController } from './controllers/tenant.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { KeycloakEntity } from 'src/keycloak/models/entitiy/keycloak';
+import { KeycloakEntity } from 'operator/src/keycloak/models/entitiy/keycloak';
 import { TenantEntity } from './models/entitiy/tenant';
-import { KeycloakService } from 'src/keycloak/services/keycloak.service';
+import { KeycloakService } from 'operator/src/keycloak/services/keycloak.service';
 
 @Module({
   providers: [TenantService, KeycloakService],

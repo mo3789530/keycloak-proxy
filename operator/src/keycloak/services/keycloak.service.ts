@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ulid } from 'ulid';
@@ -12,6 +12,8 @@ export class KeycloakService {
     @InjectRepository(KeycloakEntity)
     private keycloakRepository: Repository<KeycloakEntity>,
   ) {}
+
+  private logger = new Logger(KeycloakService.name);
 
   async findAll(): Promise<KeycloakDto[]> {
     const entities = await this.keycloakRepository.find();
@@ -43,7 +45,7 @@ export class KeycloakService {
   ): Promise<KeycloakDto> {
     const keycloakInDb = await this.findByUrl(createKeycloakDto.url);
     if (keycloakInDb !== undefined) {
-      console.log('Keycloak is already exist');
+      this.logger.log('Keycloak is already exist');
       throw new HttpException(
         'Keycloak is already exist',
         HttpStatus.BAD_REQUEST,

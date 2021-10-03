@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Logger,
   NotFoundException,
   Param,
   Post,
@@ -14,6 +15,7 @@ import { KeycloakService } from '../services/keycloak.service';
 @Controller('keycloak')
 export class KeycloakController {
   constructor(private readonly keycloakService: KeycloakService) {}
+  private logger = new Logger(KeycloakController.name);
 
   @Get()
   @ApiResponse({ status: 200, type: KeycloakDto, isArray: true })
@@ -27,6 +29,7 @@ export class KeycloakController {
   public async findById(@Param('id') id: string) {
     const res = await this.keycloakService.findByUUID(id);
     if (res === undefined) {
+      this.logger.log(id + ' is not found');
       throw new NotFoundException(id + ' is not found');
     }
     return res;
@@ -37,6 +40,7 @@ export class KeycloakController {
   public async findByWriteable() {
     const res = await this.keycloakService.findByWriteable();
     if (res === undefined) {
+      this.logger.log('Active keycloak is not found');
       throw new NotFoundException();
     }
     return res;

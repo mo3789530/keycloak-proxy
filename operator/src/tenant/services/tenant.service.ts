@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ulid } from 'ulid';
@@ -12,6 +12,8 @@ export class TenantService {
     @InjectRepository(TenantEntity)
     private tenantRepository: Repository<TenantEntity>,
   ) {}
+
+  private logger = new Logger(TenantService.name);
 
   async findAll(): Promise<TenantDto[]> {
     const entities = await this.tenantRepository.find();
@@ -39,7 +41,7 @@ export class TenantService {
   ): Promise<TenantDto> {
     const tenantInDb = await this.findByName(createTenant.tenantName);
     if (tenantInDb !== undefined) {
-      console.log('tenant is already exist');
+      this.logger.error('tenant is already exist');
       throw new HttpException(
         'Tenant is already exist',
         HttpStatus.BAD_REQUEST,

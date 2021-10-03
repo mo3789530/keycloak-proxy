@@ -15,7 +15,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Definde json respose
+// Defined json respose
 type Tenant struct {
 	ID          int    `json:"id"`
 	UUID        string `json:"uuid"`
@@ -27,11 +27,11 @@ type Tenant struct {
 type Keycloak struct {
 	ID          int    `json:"id"`
 	UUID        string `json:"uuid"`
-	KEYCLOAKID  string `json:"url"`
-	KEYCLOAKUri bool   `json:"isWriteable"`
+	KEYCLOAKUri string `json:"url"`
+	ISWeiteable bool   `json:"isWriteable"`
 }
 
-// Get writeable keycloak uri
+// Get cat create new keycloak uri
 func GetMasterKeycloak() (string, error) {
 	uri := os.Getenv("KEYCLOAK_OPERATOR_URL")
 	u, err := url.Parse(uri)
@@ -47,11 +47,13 @@ func GetMasterKeycloak() (string, error) {
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 
+	log.Println(string(body))
+
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
-	keycloakData := new(Tenant)
+	keycloakData := new(Keycloak)
 	if err := json.Unmarshal(body, keycloakData); err != nil {
 		return "", err
 	}
@@ -67,7 +69,8 @@ func FindRealm(realmName string) (string, error) {
 		log.Fatalln("Keyclaok operator url is invalid format")
 	}
 
-	response, err := http.DefaultClient.Get(u.String() + "/tenants/name/" + realmName)
+	// log.Println(realmName)
+	response, err := http.DefaultClient.Get(u.String() + "/tenant/name/" + realmName)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -81,7 +84,7 @@ func FindRealm(realmName string) (string, error) {
 	}
 
 	if response.StatusCode != 200 {
-		return "", errors.New("Not found error")
+		return "", errors.New("Realm is not found error")
 	}
 
 	tenantData := new(Tenant)
@@ -114,10 +117,12 @@ func Index(s []string, e string) (int, error) {
 			return i, nil
 		}
 	}
-	return -1, errors.New("Not found")
+	return -1, errors.New("Not found reaml index")
 }
 
 func main() {
+	// logger := log.New(os.Stdout, "", log.LstdFlags)
+	log.Println("start")
 
 	isDebug := os.Getenv("DEBUG")
 	debugFlg, _ := strconv.ParseBool(isDebug)
@@ -126,7 +131,7 @@ func main() {
 		err := godotenv.Load(".env")
 
 		if err != nil {
-			log.Fatal("Fail to load emv file")
+			log.Fatal("Fail to load emv file", err.Error())
 		}
 	}
 
@@ -135,20 +140,28 @@ func main() {
 
 		// println(request.URL.Path)
 
-		uri, err := GetRealmFromUri(request.URL.Path)
-		if err != nil {
-			log.Println(err)
-			master, err := GetMasterKeycloak()
+		realm, err := GetRealmFromUri(request.URL.Path)
+		// Not found realm
+		if err != nil || realm == "master" {
+			log.Println("Get master")
+			masterUri, err := GetMasterKeycloak()
 
 			if err != nil {
-				log.Fatalln(err)
+				log.Fatalln(err.Error())
 			}
-
-			request.URL.Host = master
-
+			log.Println("master url", masterUri)
+			host, _ := url.Parse(masterUri)
+			request.URL.Host = host.Host
 		}
-		if uri != "" {
-			request.URL.Host = uri
+
+		// Other than master and empty
+		if realm != "" && realm != "master" {
+			keycloakUri, err := FindRealm(realm)
+			if err != nil {
+				log.Println(err.Error())
+			}
+			host, _ := url.Parse(keycloakUri)
+			request.URL.Host = host.Host
 		}
 
 		log.Println(request.URL)

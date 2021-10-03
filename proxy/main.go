@@ -47,7 +47,11 @@ func GetMasterKeycloak() (string, error) {
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 
-	log.Println(string(body))
+	// log.Println(string(body))
+
+	if response.StatusCode != 200 {
+		return "", errors.New("active keycloak is not found error")
+	}
 
 	if err != nil {
 		return "", err
@@ -84,7 +88,7 @@ func FindRealm(realmName string) (string, error) {
 	}
 
 	if response.StatusCode != 200 {
-		return "", errors.New("Realm is not found error")
+		return "", errors.New("realm is not found error")
 	}
 
 	tenantData := new(Tenant)
@@ -117,7 +121,7 @@ func Index(s []string, e string) (int, error) {
 			return i, nil
 		}
 	}
-	return -1, errors.New("Not found reaml index")
+	return -1, errors.New("not found reaml index")
 }
 
 func main() {

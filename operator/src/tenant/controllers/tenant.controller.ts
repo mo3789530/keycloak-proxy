@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Logger,
   NotFoundException,
   Param,
   Post,
@@ -19,6 +20,8 @@ export class TenantController {
     private readonly keycloakService: KeycloakService,
   ) {}
 
+  private logger = new Logger(TenantController.name);
+
   @Get()
   @ApiResponse({ status: 200, type: TenantDto, isArray: true })
   @HttpCode(200)
@@ -31,6 +34,7 @@ export class TenantController {
   public async findById(@Param('name') name: string) {
     const res = await this.tenantService.findByName(name);
     if (res === undefined) {
+      this.logger.log(name + 'is not found');
       throw new NotFoundException(name + ' is not found');
     }
     return res;
@@ -39,8 +43,11 @@ export class TenantController {
   @ApiResponse({ status: 200, type: TenantDto, isArray: false })
   public async create(@Body() create: CreateTenantDto) {
     const keycloak = await this.keycloakService.findByWriteable();
-    if (keycloak === undefined || keycloak.uuid === undefined)
+    if (keycloak === undefined || keycloak.uuid === undefined) {
+      this.logger.log('Writeable keycloak is not found');
       throw new NotFoundException('Writeable keycloak is not found');
+    }
+
     return await this.tenantService.create(
       create,
       keycloak.id.toString(),

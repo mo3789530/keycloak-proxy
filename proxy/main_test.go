@@ -125,7 +125,7 @@ func TestFindRealm(t *testing.T) {
 
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("GET", "http://localhost:3000/tenants/name/test1",
+	httpmock.RegisterResponder("GET", "http://localhost:3000/tenant/name/test1",
 		httpmock.NewStringResponder(200, `{
 			"id": 11,
 			"uuid": "uuid",
@@ -165,6 +165,64 @@ func TestFindRealmFail(t *testing.T) {
 	)
 
 	keycloak, err := FindRealm("test1")
+	if err == nil {
+		log.Println(err)
+		t.Error("err")
+	}
+
+	exp := "http://localhost:8081"
+	if keycloak == exp {
+		log.Println(keycloak)
+		t.Error("Error")
+	}
+}
+
+func TestGetMasterKeycloak(t *testing.T) {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Fail to load emv file")
+	}
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("GET", "http://localhost:3000/keycloak/active",
+		httpmock.NewStringResponder(200, `{
+			"id": 11,
+			"uuid": "uuid",
+			"url": "http://localhost:8081",
+			"isWriteable": true
+		}`),
+	)
+
+	keycloak, err := GetMasterKeycloak()
+	if err != nil {
+		log.Println(err)
+		t.Error("err")
+	}
+
+	exp := "http://localhost:8081"
+	if keycloak != exp {
+		log.Println(keycloak)
+		t.Error("Error")
+	}
+}
+
+func TestGetMasterKeycloakFail(t *testing.T) {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Fail to load emv file")
+	}
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+	httpmock.RegisterResponder("GET", "http://localhost:3000/keycloak/active",
+		httpmock.NewStringResponder(400, `{
+		}`),
+	)
+
+	keycloak, err := GetMasterKeycloak()
 	if err == nil {
 		log.Println(err)
 		t.Error("err")

@@ -37,3 +37,4 @@ lerna-debug.log*
 proxy/proxy
 operator/dist/*
 operator/dist/
+operator/node_modules

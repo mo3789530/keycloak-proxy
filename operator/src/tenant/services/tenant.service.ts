@@ -35,6 +35,7 @@ export class TenantService {
   async create(
     createTenant: CreateTenantDto,
     keycloakId: string,
+    keycloakUrl: string,
   ): Promise<TenantDto> {
     const tenantInDb = await this.findByName(createTenant.tenantName);
     if (tenantInDb !== undefined) {
@@ -49,6 +50,7 @@ export class TenantService {
       tenantName: createTenant.tenantName,
       uuid: ulid(),
       keycloakId: keycloakId,
+      keycloakUri: keycloakUrl,
     });
 
     await this.tenantRepository.save(tenant);

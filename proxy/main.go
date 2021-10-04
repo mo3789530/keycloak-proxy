@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,6 +15,10 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+)
+
+const (
+	httpStatusClientClosedRequest = 499
 )
 
 // Defined json respose
@@ -142,7 +148,7 @@ func main() {
 	director := func(request *http.Request) {
 		request.URL.Scheme = "http"
 
-		// println(request.URL.Path)
+		println(request.URL.Path)
 
 		realm, err := GetRealmFromUri(request.URL.Path)
 		// Not found realm
@@ -171,7 +177,20 @@ func main() {
 		log.Println(request.URL)
 	}
 
-	rp := &httputil.ReverseProxy{Director: director}
+	errorHandler := func(rw http.ResponseWriter, req *http.Request, err error) {
+		status := http.StatusBadGateway
+		switch err {
+		case context.Canceled:
+			status = httpStatusClientClosedRequest
+		case io.ErrUnexpectedEOF:
+			status = httpStatusClientClosedRequest
+		default:
+			log.Printf("http: proxy error: %v", err)
+		}
+		rw.WriteHeader(status)
+	}
+
+	rp := &httputil.ReverseProxy{Director: director, ErrorHandler: errorHandler}
 
 	server := http.Server{
 		Addr:    ":8080",

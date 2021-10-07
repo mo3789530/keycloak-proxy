@@ -62,6 +62,7 @@ describe('TenantService', () => {
       try {
         const result = await service.create(params, 'fakeId', 'fakeUrl');
         await service.create(params, 'fakeId', 'fakeUrl');
+        fail();
       } catch (e) {
         expect(e.status).toBe(400);
         return;
@@ -69,7 +70,6 @@ describe('TenantService', () => {
       fail();
     });
   });
-
   describe('find', () => {
     it('should be find all', async () => {
       const params: CreateTenantDto = { tenantName: 'test1' };
@@ -90,6 +90,13 @@ describe('TenantService', () => {
       expect(res.tenantName).toBe(inDb.tenantName);
       expect(res.uuid).toBe(inDb.uuid);
       expect(res.keycloakUri).toBe(inDb.keycloakUri);
+    });
+
+    it('should be find by uuid', async () => {
+      const params: CreateTenantDto = { tenantName: 'test1' };
+      const inDb = await service.create(params, 'aaa', 'fakeurl1');
+      const res = await service.findByUUID(inDb.uuid);
+      expect(res.uuid).toBe(inDb.uuid);
     });
   });
 });

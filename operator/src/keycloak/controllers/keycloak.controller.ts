@@ -9,6 +9,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
+import { text } from 'express';
 import { CreateKeycloakDto, KeycloakDto } from '../models/dto/keycloak.dto';
 import { KeycloakService } from '../services/keycloak.service';
 
@@ -26,6 +27,7 @@ export class KeycloakController {
 
   @Get('id/:id')
   @ApiResponse({ status: 200, type: KeycloakDto, isArray: false })
+  @ApiResponse({ status: 404, type: text })
   public async findById(@Param('id') id: string) {
     const res = await this.keycloakService.findByUUID(id);
     if (res === undefined) {
@@ -37,6 +39,7 @@ export class KeycloakController {
 
   @Get('active')
   @ApiResponse({ status: 200, type: KeycloakDto, isArray: false })
+  @ApiResponse({ status: 404, type: text })
   public async findByWriteable() {
     const res = await this.keycloakService.findByWriteable();
     if (res === undefined) {
@@ -48,6 +51,7 @@ export class KeycloakController {
 
   @Post()
   @ApiResponse({ status: 200, type: KeycloakDto, isArray: false })
+  @ApiResponse({ status: 400 })
   public async create(@Body() create: CreateKeycloakDto) {
     return await this.keycloakService.createKeycloak(create);
   }

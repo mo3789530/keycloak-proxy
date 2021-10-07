@@ -28,7 +28,7 @@ export class TenantService {
     return toTenantDto(entitiy);
   }
 
-  private async findByUUID(uuid: string): Promise<TenantEntity> {
+  async findByUUID(uuid: string): Promise<TenantEntity> {
     return await this.tenantRepository.findOne({
       where: { uuid },
     });
@@ -54,8 +54,12 @@ export class TenantService {
       keycloakId: keycloakId,
       keycloakUri: keycloakUrl,
     });
-
-    await this.tenantRepository.save(tenant);
-    return toTenantDto(tenant);
+    try {
+      await this.tenantRepository.save(tenant);
+      return toTenantDto(tenant);
+    } catch (e) {
+      this.logger.error('Error' + e);
+      throw new HttpException('Error' + e, HttpStatus.BAD_REQUEST);
+    }
   }
 }

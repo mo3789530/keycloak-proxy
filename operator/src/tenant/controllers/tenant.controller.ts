@@ -31,6 +31,7 @@ export class TenantController {
 
   @Get('name/:name')
   @ApiResponse({ status: 200, type: TenantDto, isArray: false })
+  @ApiResponse({ status: 404 })
   public async findById(@Param('name') name: string) {
     const res = await this.tenantService.findByName(name);
     if (res === undefined) {
@@ -41,6 +42,8 @@ export class TenantController {
   }
   @Post()
   @ApiResponse({ status: 200, type: TenantDto, isArray: false })
+  @ApiResponse({ status: 400 })
+  @ApiResponse({ status: 404 })
   public async create(@Body() create: CreateTenantDto) {
     const keycloak = await this.keycloakService.findByWriteable();
     if (keycloak === undefined || keycloak.uuid === undefined) {

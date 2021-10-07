@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ulid } from 'ulid';
@@ -17,7 +23,7 @@ export class KeycloakService {
 
   async findAll(): Promise<KeycloakDto[]> {
     const entities = await this.keycloakRepository.find();
-    if (entities === undefined) return [];
+    if (entities === undefined) throw new NotFoundException('Not found');
     return entities.map((x) => toKeyclaokDto(x));
   }
 

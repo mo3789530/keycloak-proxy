@@ -12,7 +12,7 @@ spec:
       labels:
         app: keycloak-management
     spec:
-      serviceAccount: keycloakserviceaccount
+      serviceAccount: keycloak-cluster-sa
       containers:
       - name: keycloak-management
         image: mo053/keycloak-management:latest

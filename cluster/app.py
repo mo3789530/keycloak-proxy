@@ -1,6 +1,7 @@
 import os
 import time
 import datetime
+from types import MethodType
 import yaml
 import psycopg2
 from pathlib import Path
@@ -86,15 +87,19 @@ def deploy_instance():
         raise e
 
 # POST
-@app.route('/api/instance/keycloak')
+@app.route('/api/instance/keycloak', methods=["POST"])
 def create_instance():
     today = datetime.date.today()
     now = datetime.datetime.now()
     instanceName = 'keycloak' + str(today) + '-' + str(now.hour) + ':' + str(now.minute)
-    isCreateDb = os.getenv('IS_CREATE_DB')
-    if isCreateDb == True:
-        create_database(instanceName)
-    deploy_instance()
+    try:
+        isCreateDb = os.getenv('IS_CREATE_DB')
+        if isCreateDb == True:
+            create_database(instanceName)
+        deploy_instance()
+        return Response(status=200)
+    except Exception as e:
+        return Response(status=400)
 
 # # GET
 # @app.route('/api/instance/keycloak')

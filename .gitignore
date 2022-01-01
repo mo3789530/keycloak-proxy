@@ -38,3 +38,4 @@ proxy/proxy
 operator/dist/*
 operator/dist/
 operator/node_modules
+cluster/__pycache__/app_test.cpython-39.pyc
